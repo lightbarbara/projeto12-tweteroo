@@ -9,10 +9,11 @@ const users = []
 const tweets = []
 
 app.post('/sign-up', (req, res) => {
+
     const { username, avatar } = req.body
 
     if (!username || !avatar) {
-        res.status(400).send('There are some fields missing')
+        res.status(400).send('Todos os campos são obrigatórios!')
         return
     }
 
@@ -26,10 +27,11 @@ app.post('/sign-up', (req, res) => {
 })
 
 app.post('/tweets', (req, res) => {
-    const { username, tweet } = req.body
+    const { tweet } = req.body
+    const username = req.headers.username
 
     if (!username || !tweet) {
-        res.status(400).send('There are some fields missing')
+        res.status(400).send('Todos os campos são obrigatórios!')
         return
     }
 
@@ -43,10 +45,19 @@ app.post('/tweets', (req, res) => {
 })
 
 app.get('/tweets', (req, res) => {
+    const page = Number(req.query.page)
+    
+    if (page < 1) {
+        res.status(400).send('Informe uma página válida!')
+        return
+    }
+
+    const inicio = (page-1)*10
+    const final = page*10
 
     const newTweets = []
-    for (let t=0; t<tweets.length; t++) {
-        newTweets.push({...tweets[t]})
+    for (let t = 0; t < tweets.length; t++) {
+        newTweets.push({ ...tweets[t] })
     }
 
     newTweets.map(t => {
@@ -54,7 +65,34 @@ app.get('/tweets', (req, res) => {
         user ? t.avatar = user.avatar : t.avatar = ''
     })
 
-    res.send(newTweets.slice(0,10))
+    res.send(newTweets.slice(inicio, final))
+})
+
+app.get('/tweets/:username', (req, res) => {
+    const username = req.params.username
+    const page = Number(req.query.page)
+
+    if (page < 1) {
+        res.status(400).send('Informe uma página válida!')
+        return
+    }
+
+    const inicio = (page-1)*10
+    const final = page*10
+
+    const newTweets = []
+    for (let t = 0; t < tweets.length; t++) {
+        if (tweets[t].username === username) {
+            newTweets.push({ ...tweets[t] })
+        }
+    }
+
+    newTweets.map(t => {
+        const user = users.find(u => u.username === t.username)
+        user ? t.avatar = user.avatar : t.avatar = ''
+    })
+
+    res.send(newTweets.slice(inicio, final))
 })
 
 app.listen(5000, () => {
