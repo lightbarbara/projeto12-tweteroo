@@ -10,28 +10,40 @@ const tweets = []
 
 app.post('/sign-up', (req, res) => {
     const {username, avatar} = req.body
+
+    if (!username || !avatar) {
+        res.status(400).send('There are some fields missing')
+        return
+    }
+
     const newUser = {
         username,
         avatar
     }
+
     users.push(newUser)
     res.status(201).send('OK')
 })
 
-app.post('/', (req, res) => {
+app.post('/tweets', (req, res) => {
     const {username, tweet} = req.body
+
     if (!username || !tweet) {
         res.status(400).send('There are some fields missing')
         return
     }
+
     const newTweet = {
-        id: tweets.length + 1,
+        username,
+        tweet
     }
-    res.status(201).send('')
+
+    tweets.push(newTweet)
+    res.status(201).send('OK')
 })
 
 app.get('/tweets', (req, res) => {
-    
+    res.send()
 })
 
 app.listen(5000, () => {
