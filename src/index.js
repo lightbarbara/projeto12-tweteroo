@@ -9,7 +9,7 @@ const users = []
 const tweets = []
 
 app.post('/sign-up', (req, res) => {
-    const {username, avatar} = req.body
+    const { username, avatar } = req.body
 
     if (!username || !avatar) {
         res.status(400).send('There are some fields missing')
@@ -26,7 +26,7 @@ app.post('/sign-up', (req, res) => {
 })
 
 app.post('/tweets', (req, res) => {
-    const {username, tweet} = req.body
+    const { username, tweet } = req.body
 
     if (!username || !tweet) {
         res.status(400).send('There are some fields missing')
@@ -38,12 +38,23 @@ app.post('/tweets', (req, res) => {
         tweet
     }
 
-    tweets.push(newTweet)
+    tweets.splice(0, 0, newTweet)
     res.status(201).send('OK')
 })
 
 app.get('/tweets', (req, res) => {
-    res.send()
+
+    const newTweets = []
+    for (let t=0; t<tweets.length; t++) {
+        newTweets.push({...tweets[t]})
+    }
+
+    newTweets.map(t => {
+        const user = users.find(u => u.username === t.username)
+        user ? t.avatar = user.avatar : t.avatar = ''
+    })
+
+    res.send(newTweets.slice(0,10))
 })
 
 app.listen(5000, () => {
